@@ -33,9 +33,6 @@ int main()
 
                 X = stoi(receive.substr(0,posX));
                 Y = stoi(receive.substr(posX + 1,posY));
-
-
-                printf("%s\n",buf);
             }
         }
         
@@ -51,3 +48,4 @@ int main()
     }
     
 }
+
