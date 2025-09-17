@@ -25,7 +25,6 @@ int main()
             int len = pc.read(buf,sizeof(buf));
             if(len > 0)
             {
-            
                 buf[len] = '\0';        
                 receive = buf;
                 size_t posX = receive.find("X");
@@ -48,4 +47,5 @@ int main()
     }
     
 }
+
 
