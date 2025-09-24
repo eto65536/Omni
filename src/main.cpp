@@ -11,27 +11,41 @@ BufferedSerial pc(PA_9, PA_10, 115200);
 
 int main()
 {
-    
+    //pc.set_blocking(true);
     CAN omnimotor(PA_11,PA_12,(int)1e6);
     CANMessage omnimotor_msg;
 
     
-    while (true)
+    while(true)
     {
+        char buf[64];
         if(pc.readable())
         {
-            char buf[64];
-            string receive;
-            int len = pc.read(buf,sizeof(buf));
+            char r;
+            int buf_count = 0;
+            int len = pc.read(&r,1);
             if(len > 0)
             {
-                buf[len] = '\0';        
-                receive = buf;
-                size_t posX = receive.find("X");
-                size_t posY = receive.find("Y");
+                if(r == 'X')
+                {
+                    buf[buf_count - 1] = '\0';
+                    X = stoi(buf);
+                    buf_count = 0;
+                }
+                else if(r == '\n')
+                {
+                    buf[buf_count - 1] = '\0';
+                    Y = stoi(buf);
+                    buf_count = 0;
+                }
+                else
+                {
+                    buf[buf_count++] = r;
+                }
 
-                X = stoi(receive.substr(0,posX));
-                Y = stoi(receive.substr(posX + 1,posY));
+
+                // X = stoi(receive.substr(0,posX));
+                // Y = stoi(receive.substr(posX + 1,posY));
             }
         }
         
@@ -47,5 +61,3 @@ int main()
     }
     
 }
-
-
