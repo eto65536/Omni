@@ -9,7 +9,6 @@ void setup() {
 
 void loop() {
   if (PS4.isConnected()) {
-      Serial.printf("%dX", PS4.LStickX());
-      Serial.printf("%d\n", PS4.LStickY());
+      Serial.printf("%dX%d\n", PS4.LStickX(),PS4.LStickY);
   }
 }
