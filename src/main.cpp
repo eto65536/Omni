@@ -31,7 +31,7 @@ int main()
                     X = stoi(buf);
                     buf_count = 0;
                 }
-                else if(r == '\n')
+                else if(r == 'Y')
                 {
                     buf[buf_count] = '\0';
                     Y = stoi(buf);
@@ -59,4 +59,5 @@ int main()
     }
     
 }
+
 
