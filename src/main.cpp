@@ -54,6 +54,9 @@ int main()
         }
         CANMessage omnimotor_msg(3, (const uint8_t *)wheelangle, 8);
         omnimotor.write(omnimotor_msg);
+
+        ThisThread::sleep_for(10ms);
     }
     
 }
+
