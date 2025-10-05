@@ -7,7 +7,7 @@ int angle = 0;                      //進行方向 0 ~ 360°
 float rotation = 0;                 //回転速度 -1.0 ~ 1.0
 float X = 0;                        //スティックX軸 -1.0 ~ 1.0
 float Y = 0;                        //スティックY軸 -1.0 ~ 1.0
-float ball = 0;                    //ボール回収駆動速度 -1.0 ~ 1.0
+float ball = 0;                     //ボール回収駆動速度 -1.0 ~ 1.0
 int basket = 0;                     //かご回収駆動速度   -1 or 0 or 1
 int corn = 0;                       //コーン回収駆動速度 -1 or 0 or 1
 
@@ -40,42 +40,42 @@ int main()
                 if(r == 'X')
                 {
                     buf[buf_count] = '\0';
-                    X = stof(buf) / 127;    // -1.0 ~ 1.0に変換
+                    X = stof(buf) / 127;    //-1.0 ~ 1.0に変換
                     memset(buf,0,sizeof(buf));
                     buf_count = 0;
                 }
                 else if(r == 'Y')
                 {
                     buf[buf_count] = '\0';
-                    Y = stof(buf) / 127;    // -1.0 ~ 1.0に変換
+                    Y = stof(buf) / 127;    //-1.0 ~ 1.0に変換
                     memset(buf,0,sizeof(buf));
                     buf_count = 0;
                 }
                 else if(r == 'R')
                 {
                     buf[buf_count] = '\0';
-                    rotation = stof(buf) / 127; // -1.0 ~ 1.0に変換
+                    rotation = stof(buf) / 127; //-1.0 ~ 1.0に変換
                     memset(buf,0,sizeof(buf));
                     buf_count = 0;
                 }
                 else if(r == 'C')
                 {
                     buf[buf_count] = '\0';
-                    ball = stof(buf) / 127; // -1.0 ~ 1.0に変換
+                    ball = stof(buf) / 127; //-1.0 ~ 1.0に変換
                     memset(buf,0,sizeof(buf));
                     buf_count = 0;
                 }
                 else if(r == 'B')
                 {
                     buf[buf_count] = '\0';
-                    basket = stoi(buf); // intに変換
+                    basket = stoi(buf); //intに変換
                     memset(buf,0,sizeof(buf));
                     buf_count = 0;
                 }
                 else if (r == 'N')
                 {
                     buf[buf_count] = '\0';
-                    corn = stoi(buf); // intに変換
+                    corn = stoi(buf); //intに変換
                     memset(buf,0,sizeof(buf));
                     buf_count = 0;
                 }
@@ -95,7 +95,7 @@ int main()
         basket = limitRange(basket, -1.0, 1.0, 0);
         corn = limitRange(corn, -1.0, 1.0, 0);
 
-        etcmotor[0] = ball * 12000;   //ボール回収
+        etcmotor[0] = ball * 12000;    //ボール回収
         etcmotor[1] = basket * 12000;  //かご
         etcmotor[2] = corn * 5000;     //コーン
 
