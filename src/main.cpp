@@ -1,42 +1,83 @@
 #include "mbed.h"
 
-int16_t wheelangle[] = {0,0,0,0};
-float speed = 0; //走行速度 0 ~ 1.0
-int angle = 0; //進行方向 0 ~ 360°
-int X = 0; 
-int Y = 0; 
-int basespeed = 1; //速度倍率
+int16_t wheelangle[] = {0,0,0,0};   //オムニホイール4輪
+int16_t etcmotor[] = {0,0,0};       //ボール回収,かご,コーン
+float speed = 0;                    //走行速度 0 ~ 1.0
+int angle = 0;                      //進行方向 0 ~ 360°
+float rotation = 0;                 //回転速度 -1.0 ~ 1.0
+float X = 0;                        //スティックX軸 -1.0 ~ 1.0
+float Y = 0;                        //スティックY軸 -1.0 ~ 1.0
+float ballC = 0;                    //ボール回収駆動速度 -1.0 ~ 1.0
+int basket = 0;                     //かご回収駆動速度   -1 or 0 or 1
+int corn = 0;                       //コーン回収駆動速度 -1 or 0 or 1
 
-BufferedSerial pc(PA_9, PA_10, 115200);
+BufferedSerial esp(PA_9, PA_10, 115200);
+
+float limitRange(float value, float min, float max, float deadzone)
+{
+    if(value < min) return min;         //範囲制限
+    if(value > max) return max;         //範囲制限
+    if(abs(value) < deadzone) return 0; //デッドゾーン処理
+    return value;                       //変更なし
+}
 
 int main()
 {
-    CAN omnimotor(PA_11,PA_12,(int)1e6);
+    CAN motor(PB_12,PB_13,(int)1e6);
     CANMessage omnimotor_msg;
+    CANMessage etcmotor_msg;
 
-    
-    char buf[64];
+    char buf[128];
     int buf_count = 0;
     while(true)
     {
-        if(pc.readable())
+        if(esp.readable())
         {
             char r;
-            int len = pc.read(&r,1);
+            int len = esp.read(&r,1);
             if(len > 0)
             {
                 if(r == 'X')
                 {
                     buf[buf_count] = '\0';
-                    X = stoi(buf);
+                    X = stof(buf) / 127;    // -1.0 ~ 1.0に変換
+                    memset(buf,0,sizeof(buf));
                     buf_count = 0;
                 }
                 else if(r == 'Y')
                 {
                     buf[buf_count] = '\0';
-                    Y = stoi(buf);
+                    Y = stof(buf) / 127;    // -1.0 ~ 1.0に変換
+                    memset(buf,0,sizeof(buf));
                     buf_count = 0;
-                    printf("X=%d, Y=%d\n", X, Y);
+                }
+                else if(r == 'R')
+                {
+                    buf[buf_count] = '\0';
+                    rotation = stof(buf) / 127; // -1.0 ~ 1.0に変換
+                    memset(buf,0,sizeof(buf));
+                    buf_count = 0;
+                }
+                else if(r == 'C')
+                {
+                    buf[buf_count] = '\0';
+                    ballC = stof(buf) / 127; // -1.0 ~ 1.0に変換
+                    memset(buf,0,sizeof(buf));
+                    buf_count = 0;
+                }
+                else if(r == 'B')
+                {
+                    buf[buf_count] = '\0';
+                    basket = stoi(buf); // intに変換
+                    memset(buf,0,sizeof(buf));
+                    buf_count = 0;
+                }
+                else if (r == 'N')
+                {
+                    buf[buf_count] = '\0';
+                    corn = stoi(buf); // intに変換
+                    memset(buf,0,sizeof(buf));
+                    buf_count = 0;
                 }
                 else
                 {
@@ -45,19 +86,35 @@ int main()
             }
         }
 
-        speed = sqrt(X * X + Y * Y); //速度計算
-        angle = atan2(Y,X); //移動方向計算
+        speed = sqrt(X * X + Y * Y);     //速度計算
+        angle = atan2(Y,X) * 180 / M_PI; //移動方向計算
+
+        speed = limitRange(speed, -1.0, 1.0, 0.1);
+        rotation = limitRange(rotation, -1.0, 1.0, 0.1);
+        ballC = limitRange(ballC, -1.0, 1.0, 0.1);
+        basket = limitRange(basket, -1.0, 1.0, 0);
+        corn = limitRange(corn, -1.0, 1.0, 0);
+
+        etcmotor[0] = ballC * 12000;   //ボール回収
+        etcmotor[1] = basket * 12000;  //かご
+        etcmotor[2] = corn * 5000;     //コーン
 
         for(int i = 0; i < 4; i++)
         {
-            wheelangle[i] = sin((angle + 45 + i * 90) * M_PI / 180) * speed  * basespeed;
+            if(abs(rotation) > 0.1)
+            {
+                wheelangle[i] = rotation * 12000; //回転計算
+            }
+            else
+            {
+                wheelangle[i] = sin((angle + 45 + i * 90) * M_PI / 180) * speed  * 12000; //走行計算
+            }
         }
-        CANMessage omnimotor_msg(3, (const uint8_t *)wheelangle, 8);
-        omnimotor.write(omnimotor_msg);
-
-        ThisThread::sleep_for(10ms);
+        
+        CANMessage omnimotor_msg(325, (const uint8_t *)wheelangle, 8);
+        motor.write(omnimotor_msg);
+        CANMessage etcmoter_msg(4, (const uint8_t *)etcmotor, 8);
+        motor.write(etcmotor_msg);
     }
     
 }
-
-
