@@ -7,7 +7,7 @@ int angle = 0;                      //進行方向 0 ~ 360°
 float rotation = 0;                 //回転速度 -1.0 ~ 1.0
 float X = 0;                        //スティックX軸 -1.0 ~ 1.0
 float Y = 0;                        //スティックY軸 -1.0 ~ 1.0
-float ballC = 0;                    //ボール回収駆動速度 -1.0 ~ 1.0
+float ball = 0;                    //ボール回収駆動速度 -1.0 ~ 1.0
 int basket = 0;                     //かご回収駆動速度   -1 or 0 or 1
 int corn = 0;                       //コーン回収駆動速度 -1 or 0 or 1
 
@@ -61,7 +61,7 @@ int main()
                 else if(r == 'C')
                 {
                     buf[buf_count] = '\0';
-                    ballC = stof(buf) / 127; // -1.0 ~ 1.0に変換
+                    ball = stof(buf) / 127; // -1.0 ~ 1.0に変換
                     memset(buf,0,sizeof(buf));
                     buf_count = 0;
                 }
@@ -91,11 +91,11 @@ int main()
 
         speed = limitRange(speed, -1.0, 1.0, 0.1);
         rotation = limitRange(rotation, -1.0, 1.0, 0.1);
-        ballC = limitRange(ballC, -1.0, 1.0, 0.1);
+        ball = limitRange(ball, -1.0, 1.0, 0.1);
         basket = limitRange(basket, -1.0, 1.0, 0);
         corn = limitRange(corn, -1.0, 1.0, 0);
 
-        etcmotor[0] = ballC * 12000;   //ボール回収
+        etcmotor[0] = ball * 12000;   //ボール回収
         etcmotor[1] = basket * 12000;  //かご
         etcmotor[2] = corn * 5000;     //コーン
 
